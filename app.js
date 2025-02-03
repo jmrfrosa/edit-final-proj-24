@@ -27,6 +27,8 @@ const categoryTypeMap = {
   snacks: 'Snacks',
 }
 
+console.log('João esteve aqui')
+
 const countries = ['FR', 'JP', 'IT', 'MX', 'CN', 'IN', 'US']
 
 // Building select options dynamically from above lists
