@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.fluid.classless.indigo.min.css"
+    />
+    <link rel="stylesheet" href="./style.css" />
+    <title>JetDine</title>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <div class="flex-row">
+          <img src="./logo.png" style="object-fit: fill; height: 100px" />
+          <hgroup>
+            <h1>JetDine</h1>
+            <p>Na tua mesa, sem escalas</p>
+          </hgroup>
+        </div>
+        <button id="order-dialog-btn" type="button">As minhas encomendas</button>
+        <dialog id="order-dialog">
+          <article>
+            <header>
+              <hgroup>
+                <h2>Encomendas</h2>
+              </hgroup>
+            </header>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Restaurante</th>
+                  <th>Estado</th>
+                  <th>Items</th>
+                  <th>Preço</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <footer>
+              <button type="button">Fechar</button>
+            </footer>
+          </article>
+        </dialog>
+      </nav>
+    </header>
+    <main>
+      <section>
+        <h2>Restaurantes</h2>
+        <form id="search-form">
+          <div class="flex-row form-row">
+            <input type="text" name="name" placeholder="Nome">
+            <select id="country-selector" name="country">
+              <option value=""></option>
+            </select>
+            <select id="food-type-selector" multiple name="food">
+            </select>
+            <button type="submit">Pesquisar</button>
+          </div>
+        </form>
+      </section>
+      <hr>
+      <section id="restaurants" class="grid"></section>
+    </main>
+    <footer></footer>
+    <script src="app.js"></script>
+  </body>
+</html>

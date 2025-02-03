@@ -1,0 +1,75 @@
+:root {
+  --pico-font-size: 95%;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+
+  &.wrap {
+    flex-wrap: wrap;
+  }
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+
+  &.wrap {
+    flex-wrap: wrap;
+  }
+}
+
+.flex-gap-sm {
+  gap: 0.5em;
+}
+
+.form-row {
+
+  & > * {
+    height: calc(
+      1rem * var(--pico-line-height) + var(--pico-form-element-spacing-vertical) *
+        2 + var(--pico-border-width) * 2
+    );
+  }
+}
+
+dialog {
+  & article {
+    min-width: 70vw;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1em;
+
+  & img {
+    object-fit: cover;
+    width: 100%;
+    height: 200px;
+  }
+
+  &.xs {
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  &.sm {
+    grid-template-columns: repeat(1, 2fr);
+  }
+}
+
+@media screen and (min-width:250px) and (max-width:900px) {
+  .grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+@media screen and (min-width:900px) and (max-width:1300px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
