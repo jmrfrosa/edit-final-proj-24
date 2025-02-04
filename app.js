@@ -427,11 +427,33 @@ fetchRestaurants().then((restaurants) => {
  * - Searching by country
  * - Searching by (one or more) food types
  * - If a field is empty, we should not consider it for matching (e.g. empty fields match all)
+ * DONE
  */
-function handleRestaurantSearch(restaurants) {
-  // Not implemented
 
-  console.log('handleRestaurantSearch - NOT IMPLEMENTED')
+function handleRestaurantSearch(restaurants) {
+  const searchFormData = new FormData(restaurantSearchForm)
+  
+  const nameSearched = searchFormData.get("name").toLowerCase().trim()
+  const countrySearched = searchFormData.get("country")
+  const foodTypeSearched = Array.from(searchFormData.getAll("food"))
+
+  const filteredRestaurants = []
+
+
+  for (const i of restaurants){
+    const namesFinded = nameSearched === "" || i.name.toLowerCase().includes(nameSearched)
+    const countriesFinded = countrySearched ==="" || i.address.countryCode === countrySearched
+    const typeFinded = foodTypeSearched.length === 0 || foodTypeSearched.some((type) => i.food.includes(type))
+
+
+     if (namesFinded && countriesFinded && typeFinded) {
+      filteredRestaurants.push(i);
+    }
+  }
+
+  renderRestaurantList(filteredRestaurants)
+
+  // console.log('handleRestaurantSearch - NOT IMPLEMENTED')
 }
 
 /**
