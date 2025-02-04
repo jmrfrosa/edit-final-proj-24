@@ -90,12 +90,42 @@ function buildRestaurantNode(restaurant) {
 
   /**
    * @todo: To be implemented, see restaurantHasPromotion below
-   */
+   done*/
+
   const discountNodeHtml = '<ins>Desconto!</ins>'
+  const showPromo = restaurantHasPromotion(restaurant)
+  
+
+  // if (showPromo === true){
+  //   rootArticle.innerHTML = `
+  //   <div class="flex-row" style="justify-content: space-between;">
+  //     <h3>${restaurant.name}</h3> ${discountNodeHtml}
+  //   </div> 
+  //   <figure>
+  //     <img src="${restaurant.photoUrl}">
+  //     <figcaption><div class="flex-row flex-gap-sm">${fmtTags.join(
+  //       ''
+  //     )}</div></figcaption>
+  //   </figure>
+  // `
+  // } else {
+  //   rootArticle.innerHTML = `
+  //   <div class="flex-row" style="justify-content: space-between;">
+  //     <h3>${restaurant.name}</h3>
+  //   </div>
+  //   <figure>
+  //     <img src="${restaurant.photoUrl}">
+  //     <figcaption><div class="flex-row flex-gap-sm">${fmtTags.join(
+  //       ''
+  //     )}</div></figcaption>
+  //   </figure>
+  // `
+  //   }
+  
 
   rootArticle.innerHTML = `
     <div class="flex-row" style="justify-content: space-between;">
-      <h3>${restaurant.name}</h3>
+      <h3>${restaurant.name}</h3>${showPromo ? discountNodeHtml : ""}
     </div>
     <figure>
       <img src="${restaurant.photoUrl}">
@@ -459,9 +489,17 @@ function handleRestaurantSearch(restaurants) {
 /**
  * 
  * @todo - Implement function to determine if a restaurant has an active promotion
- */
+ done*/
 function restaurantHasPromotion(restaurant) {
-  // Not implemented
 
-  console.log('restaurantHasPromotion - NOT IMPLEMENTED')
+  for (const i of restaurant.menu){
+
+    if (i.promotions.length > 0) {
+      return true;
+    }
+  }
+  
+  return false
+
+  // console.log('restaurantHasPromotion - NOT IMPLEMENTED')
 }
