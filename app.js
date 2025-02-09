@@ -58,6 +58,8 @@ const orderDialogNode = document.querySelector('#order-dialog')
 const orderDialogOpenBtn = document.querySelector('#order-dialog-btn')
 const orderDialogCloseBtn = orderDialogNode.querySelector('button')
 
+
+
 orderDialogCloseBtn.addEventListener('click', () => orderDialogNode.close())
 
 // Web operations
@@ -469,14 +471,15 @@ function handleRestaurantSearch(restaurants) {
 
   const filteredRestaurants = []
 
+  const promotionChecked = searchFormData.has("promotion-checkbox")
 
   for (const i of restaurants){
     const namesFinded = nameSearched === "" || i.name.toLowerCase().includes(nameSearched)
     const countriesFinded = countrySearched ==="" || i.address.countryCode === countrySearched
     const typeFinded = foodTypeSearched.length === 0 || foodTypeSearched.some((type) => i.food.includes(type))
+    const hasPromotion = !promotionChecked || restaurantHasPromotion(i)
 
-
-     if (namesFinded && countriesFinded && typeFinded) {
+     if (namesFinded && countriesFinded && typeFinded && hasPromotion) {
       filteredRestaurants.push(i);
     }
   }
