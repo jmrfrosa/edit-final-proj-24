@@ -170,11 +170,16 @@ function buildMenuDialog(restaurant) {
 
   /**
    * @todo: BUG HERE!! We're showing menu items without stock and allowing customers to order them!
-   */
+   done??*/
   restaurant.menu.forEach((menuItem) => {
     const node = buildMenuItem(menuItem, restaurant.currency, menuItemForm)
 
-    menuItemGridNode.appendChild(node)
+    if (menuItem.stock != "none"){
+      menuItemGridNode.appendChild(node)
+
+    } else{
+      return
+    }
   })
 
   const menuItemMain = document.createElement('article')
