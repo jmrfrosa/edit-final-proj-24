@@ -21,7 +21,9 @@
             <p>Na tua mesa, sem escalas</p>
           </hgroup>
         </div>
-        <button id="order-dialog-btn" type="button">As minhas encomendas</button>
+        <button id="order-dialog-btn" type="button">
+          As minhas encomendas
+        </button>
         <dialog id="order-dialog">
           <article>
             <header>
@@ -52,18 +54,20 @@
       <section>
         <h2>Restaurantes</h2>
         <form id="search-form">
+          <label>
+            <input type="checkbox" id="promotion-filter" /> Apenas com promoções
+          </label>
           <div class="flex-row form-row">
-            <input type="text" name="name" placeholder="Nome">
+            <input type="text" name="name" placeholder="Nome" />
             <select id="country-selector" name="country">
               <option value=""></option>
             </select>
-            <select id="food-type-selector" multiple name="food">
-            </select>
+            <select id="food-type-selector" multiple name="food"></select>
             <button type="submit">Pesquisar</button>
           </div>
         </form>
       </section>
-      <hr>
+      <hr />
       <section id="restaurants" class="grid"></section>
     </main>
     <footer></footer>
