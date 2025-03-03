@@ -1,225 +1,231 @@
-const BASE_URL = 'http://116.203.151.6:3001'
+const BASE_URL = "http://116.203.151.6:3001";
 
 const foodTypeMap = {
-  french: 'Francês',
-  desserts: 'Sobremesas',
-  seafood: 'Marisco',
-  japanese: 'Japonês',
-  italian: 'Italiano',
-  pasta: 'Massa',
-  mexican: 'Mexicano',
-  tacos: 'Tacos',
-  bbq: 'BBQ',
-  chinese: 'Chinês',
-  noodles: 'Noodles',
-  indian: 'Indiano',
-  vegetarian: 'Vegetariano',
-  american: 'Americano',
-  burgers: 'Burgers',
-  wings: 'Asas',
-}
+  french: "Francês",
+  desserts: "Sobremesas",
+  seafood: "Marisco",
+  japanese: "Japonês",
+  italian: "Italiano",
+  pasta: "Massa",
+  mexican: "Mexicano",
+  tacos: "Tacos",
+  bbq: "BBQ",
+  chinese: "Chinês",
+  noodles: "Noodles",
+  indian: "Indiano",
+  vegetarian: "Vegetariano",
+  american: "Americano",
+  burgers: "Burgers",
+  wings: "Asas",
+};
 
 const categoryTypeMap = {
-  breakfast: 'Pequeno-almoço',
-  dinner: 'Jantar',
-  dessert: 'Sobremesa',
-  lunch: 'Almoço',
-  snacks: 'Snacks',
-}
+  breakfast: "Pequeno-almoço",
+  dinner: "Jantar",
+  dessert: "Sobremesa",
+  lunch: "Almoço",
+  snacks: "Snacks",
+};
 
-const countries = ['FR', 'JP', 'IT', 'MX', 'CN', 'IN', 'US']
+const countries = ["FR", "JP", "IT", "MX", "CN", "IN", "US"];
 
 // Building select options dynamically from above lists
 function setupSearch() {
-  const foodTypeSelectNode = document.querySelector('#food-type-selector')
+  const foodTypeSelectNode = document.querySelector("#food-type-selector");
   for (const [key, value] of Object.entries(foodTypeMap)) {
-    const opt = document.createElement('option')
+    const opt = document.createElement("option");
 
-    opt.value = key
-    opt.innerText = value
+    opt.value = key;
+    opt.innerText = value;
 
-    foodTypeSelectNode.appendChild(opt)
+    foodTypeSelectNode.appendChild(opt);
   }
-  const countrySelectNode = document.querySelector('#country-selector')
+  const countrySelectNode = document.querySelector("#country-selector");
   for (const countryCode of countries) {
-    const opt = document.createElement('option')
+    const opt = document.createElement("option");
 
-    opt.value = countryCode
-    opt.innerText = formatCountry(countryCode)
+    opt.value = countryCode;
+    opt.innerText = formatCountry(countryCode);
 
-    countrySelectNode.appendChild(opt)
+    countrySelectNode.appendChild(opt);
   }
 }
 
 // General DOM nodes
-const restaurantSearchForm = document.querySelector('#search-form')
-const restaurantListNode = document.querySelector('#restaurants')
-const orderDialogNode = document.querySelector('#order-dialog')
-const orderDialogOpenBtn = document.querySelector('#order-dialog-btn')
-const orderDialogCloseBtn = orderDialogNode.querySelector('button')
+const restaurantSearchForm = document.querySelector("#search-form");
+const restaurantListNode = document.querySelector("#restaurants");
+const orderDialogNode = document.querySelector("#order-dialog");
+const orderDialogOpenBtn = document.querySelector("#order-dialog-btn");
+const orderDialogCloseBtn = orderDialogNode.querySelector("button");
 
-orderDialogCloseBtn.addEventListener('click', () => orderDialogNode.close())
+orderDialogCloseBtn.addEventListener("click", () => orderDialogNode.close());
 
 // Web operations
 async function fetchRestaurants() {
   const response = await fetch(`${BASE_URL}/restaurants`, {
-    method: 'GET',
-  })
+    method: "GET",
+  });
 
-  return await response.json()
+  return await response.json();
 }
 
 async function fetchOrders() {
   const response = await fetch(`${BASE_URL}/orders`, {
-    method: 'GET',
-  })
+    method: "GET",
+  });
 
-  return await response.json()
+  return await response.json();
 }
 
 // Components
 function buildRestaurantNode(restaurant) {
-  const rootArticle = document.createElement('article')
+  const rootArticle = document.createElement("article");
 
-  const orderDialog = buildMenuDialog(restaurant)
+  const orderDialog = buildMenuDialog(restaurant);
 
-  const fmtCountry = formatCountry(restaurant.address.countryCode)
+  const fmtCountry = formatCountry(restaurant.address.countryCode);
   const fmtTags = restaurant.food.map(
     (foodType) => `<kbd>${foodTypeMap[foodType] ?? foodType}</kbd>`
-  )
+  );
 
   /**
    * @todo: To be implemented, see restaurantHasPromotion below
    */
-  const discountNodeHtml = '<ins>Desconto!</ins>'
+  // Se houver promoção adiciona-se ao título a palavra Desconto
+  const discountNodeHtml = restaurantHasPromotion(restaurant)
+    ? "<ins>Desconto!</ins>"
+    : "";
 
   rootArticle.innerHTML = `
     <div class="flex-row" style="justify-content: space-between;">
-      <h3>${restaurant.name}</h3>
+      <h3>${restaurant.name} ${discountNodeHtml}</h3>
     </div>
     <figure>
       <img src="${restaurant.photoUrl}">
       <figcaption><div class="flex-row flex-gap-sm">${fmtTags.join(
-        ''
+        ""
       )}</div></figcaption>
     </figure>
-  `
+  `;
 
-  const footerNode = document.createElement('footer')
-  const footerNavNode = document.createElement('nav')
+  const footerNode = document.createElement("footer");
+  const footerNavNode = document.createElement("nav");
   footerNavNode.innerHTML = `
     <div class="flex-col flex-gap-sm">
       <small>${restaurant.address.street} • ${restaurant.address.postCode} ${restaurant.address.city}</small>
       <small>${fmtCountry}</small>
     </div>
-  `
+  `;
 
-  const orderBtnNode = document.createElement('button')
-  orderBtnNode.type = 'button'
-  orderBtnNode.innerText = 'Encomendar'
-  orderBtnNode.addEventListener('click', () => orderDialog.showModal())
+  const orderBtnNode = document.createElement("button");
+  orderBtnNode.type = "button";
+  orderBtnNode.innerText = "Encomendar";
+  orderBtnNode.addEventListener("click", () => orderDialog.showModal());
 
-  footerNavNode.appendChild(orderBtnNode)
-  footerNode.appendChild(footerNavNode)
-  rootArticle.appendChild(footerNode)
-  rootArticle.appendChild(orderDialog)
+  footerNavNode.appendChild(orderBtnNode);
+  footerNode.appendChild(footerNavNode);
+  rootArticle.appendChild(footerNode);
+  rootArticle.appendChild(orderDialog);
 
-  return rootArticle
+  return rootArticle;
 }
 
 function buildMenuDialog(restaurant) {
-  const dialog = document.createElement('dialog')
-  const menuItemForm = document.createElement('form')
+  const dialog = document.createElement("dialog");
+  const menuItemForm = document.createElement("form");
 
-  dialog.appendChild(menuItemForm)
+  dialog.appendChild(menuItemForm);
 
-  const menuItemGridNode = document.createElement('div')
-  menuItemGridNode.classList.add('grid', 'xs')
+  const menuItemGridNode = document.createElement("div");
+  menuItemGridNode.classList.add("grid", "xs");
 
   /**
    * @todo: BUG HERE!! We're showing menu items without stock and allowing customers to order them!
    */
   restaurant.menu.forEach((menuItem) => {
-    const node = buildMenuItem(menuItem, restaurant.currency, menuItemForm)
+    // Mostrar apenas items com stock
+    if (menuItem.stock > 0) {
+      const node = buildMenuItem(menuItem, restaurant.currency, menuItemForm);
 
-    menuItemGridNode.appendChild(node)
-  })
+      menuItemGridNode.appendChild(node);
+    }
+  });
 
-  const menuItemMain = document.createElement('article')
-  const menuItemHeader = document.createElement('header')
-  menuItemHeader.innerHTML = `<h2>${restaurant.name}</h2>`
+  const menuItemMain = document.createElement("article");
+  const menuItemHeader = document.createElement("header");
+  menuItemHeader.innerHTML = `<h2>${restaurant.name}</h2>`;
 
-  menuItemMain.appendChild(menuItemHeader)
-  menuItemMain.appendChild(menuItemGridNode)
+  menuItemMain.appendChild(menuItemHeader);
+  menuItemMain.appendChild(menuItemGridNode);
 
-  const menuItemFooter = document.createElement('footer')
-  menuItemFooter.classList.add('flex-row')
-  menuItemFooter.style.justifyContent = 'flex-end'
+  const menuItemFooter = document.createElement("footer");
+  menuItemFooter.classList.add("flex-row");
+  menuItemFooter.style.justifyContent = "flex-end";
 
-  const closeBtn = document.createElement('button')
-  closeBtn.type = 'button'
-  closeBtn.innerText = 'Fechar'
-  closeBtn.addEventListener('click', () => dialog.close())
+  const closeBtn = document.createElement("button");
+  closeBtn.type = "button";
+  closeBtn.innerText = "Fechar";
+  closeBtn.addEventListener("click", () => dialog.close());
 
-  const submitBtn = document.createElement('button')
-  submitBtn.type = 'submit'
-  submitBtn.innerText = 'Encomendar'
-  submitBtn.disabled = true
+  const submitBtn = document.createElement("button");
+  submitBtn.type = "submit";
+  submitBtn.innerText = "Encomendar";
+  submitBtn.disabled = true;
 
   // The form listens for the custom event "cart-change", triggered by the menu item buttons
-  menuItemForm.addEventListener('cart-change', (e) => {
-    const newQty = e.detail
+  menuItemForm.addEventListener("cart-change", (e) => {
+    const newQty = e.detail;
 
     if (newQty > 0) {
-      submitBtn.disabled = false
+      submitBtn.disabled = false;
     } else {
-      submitBtn.disabled = true
+      submitBtn.disabled = true;
     }
-  })
+  });
 
-  menuItemForm.addEventListener('submit', async (e) => {
-    e.preventDefault()
+  menuItemForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-    submitBtn.disabled = true
-    submitBtn.ariaBusy = true
-    submitBtn.innerText = '...'
+    submitBtn.disabled = true;
+    submitBtn.ariaBusy = true;
+    submitBtn.innerText = "...";
 
     try {
-      await submitOrder(restaurant, menuItemForm)
+      await submitOrder(restaurant, menuItemForm);
     } catch (err) {
-      console.error('Something went wrong', err)
+      console.error("Something went wrong", err);
     }
 
-    submitBtn.ariaBusy = false
-    submitBtn.innerText = 'Encomenda submetida com sucesso! 💸'
-  })
+    submitBtn.ariaBusy = false;
+    submitBtn.innerText = "Encomenda submetida com sucesso! 💸";
+  });
 
-  menuItemFooter.appendChild(submitBtn)
-  menuItemFooter.appendChild(closeBtn)
-  menuItemMain.appendChild(menuItemFooter)
+  menuItemFooter.appendChild(submitBtn);
+  menuItemFooter.appendChild(closeBtn);
+  menuItemMain.appendChild(menuItemFooter);
 
-  menuItemForm.appendChild(menuItemMain)
+  menuItemForm.appendChild(menuItemMain);
 
-  return dialog
+  return dialog;
 }
 
 function buildMenuItem(menuItem, currency, formNode) {
-  const mainNode = document.createElement('div')
-  mainNode.classList.add('flex-row', 'flex-gap-sm')
+  const mainNode = document.createElement("div");
+  mainNode.classList.add("flex-row", "flex-gap-sm");
 
-  const finalPrice = calculateMenuItemPrice(menuItem)
-  const isDiscounted = menuItem.basePrice !== finalPrice
+  const finalPrice = calculateMenuItemPrice(menuItem);
+  const isDiscounted = menuItem.basePrice !== finalPrice;
 
   const [fmtFinalPrice, fmtBasePrice] = [
     formatPrice(finalPrice, currency),
     formatPrice(menuItem.basePrice, currency),
-  ]
+  ];
 
-  let discountHtml = ''
+  let discountHtml = "";
   if (isDiscounted) {
-    discountHtml = `<p><s>${fmtBasePrice}</s> <mark>${fmtFinalPrice}</mark><p>`
+    discountHtml = `<p><s>${fmtBasePrice}</s> <mark>${fmtFinalPrice}</mark><p>`;
   } else {
-    discountHtml = `<p>${fmtBasePrice}</p>`
+    discountHtml = `<p>${fmtBasePrice}</p>`;
   }
 
   mainNode.innerHTML = `
@@ -233,158 +239,161 @@ function buildMenuItem(menuItem, currency, formNode) {
       <p>${menuItem.description}</p>
     </div>
     <input type="hidden" name="${menuItem.id}" value="0">
-  `
+  `;
 
-  const actionsNode = buildMenuItemActions(menuItem, formNode)
+  const actionsNode = buildMenuItemActions(menuItem, formNode);
 
-  mainNode.appendChild(actionsNode)
+  mainNode.appendChild(actionsNode);
 
-  return mainNode
+  return mainNode;
 }
 
 function buildMenuItemActions(menuItem, formNode) {
-  const actionsNode = document.createElement('div')
-  actionsNode.classList.add('flex-row', 'flex-gap-sm')
-  actionsNode.style.alignItems = 'baseline'
+  const actionsNode = document.createElement("div");
+  actionsNode.classList.add("flex-row", "flex-gap-sm");
+  actionsNode.style.alignItems = "baseline";
 
-  const quantityNode = document.createElement('span')
-  const addToCartBtn = createButton('+', { type: 'button' })
-  const removeFromCartBtn = createButton('-', { type: 'button' })
+  const quantityNode = document.createElement("span");
+  const addToCartBtn = createButton("+", { type: "button" });
+  const removeFromCartBtn = createButton("-", { type: "button" });
 
-  actionsNode.appendChild(addToCartBtn)
-  actionsNode.appendChild(quantityNode)
-  actionsNode.appendChild(removeFromCartBtn)
+  actionsNode.appendChild(addToCartBtn);
+  actionsNode.appendChild(quantityNode);
+  actionsNode.appendChild(removeFromCartBtn);
 
-  quantityNode.innerText = "0"
-  removeFromCartBtn.disabled = true
-  
+  quantityNode.innerText = "0";
+  removeFromCartBtn.disabled = true;
+
   const handleAfterChange = (input, newQty) => {
-    input.value = String(newQty)
-    quantityNode.innerText = newQty
+    input.value = String(newQty);
+    quantityNode.innerText = newQty;
 
-    const cartChangeEvent = new CustomEvent('cart-change', { bubbles: true, detail: newQty })
-    actionsNode.dispatchEvent(cartChangeEvent)
-  }
+    const cartChangeEvent = new CustomEvent("cart-change", {
+      bubbles: true,
+      detail: newQty,
+    });
+    actionsNode.dispatchEvent(cartChangeEvent);
+  };
 
-  addToCartBtn.addEventListener('click', () => {
-    const menuItemInput = getMenuItemInput(menuItem.id, formNode)
+  addToCartBtn.addEventListener("click", () => {
+    const menuItemInput = getMenuItemInput(menuItem.id, formNode);
 
-    const newQty = Number(menuItemInput.value ?? 0) + 1
+    const newQty = Number(menuItemInput.value ?? 0) + 1;
 
-    if (newQty > 0) removeFromCartBtn.disabled = false
+    if (newQty > 0) removeFromCartBtn.disabled = false;
 
-    handleAfterChange(menuItemInput, newQty)
-  })
+    handleAfterChange(menuItemInput, newQty);
+  });
 
-  removeFromCartBtn.addEventListener('click', () => {
-    const menuItemInput = getMenuItemInput(menuItem.id, formNode)
+  removeFromCartBtn.addEventListener("click", () => {
+    const menuItemInput = getMenuItemInput(menuItem.id, formNode);
 
-    const newQty = Number(menuItemInput.value ?? 0) - 1
+    const newQty = Number(menuItemInput.value ?? 0) - 1;
 
-    if (newQty === 0) removeFromCartBtn.disabled = true
-    if (newQty < 0) return
+    if (newQty === 0) removeFromCartBtn.disabled = true;
+    if (newQty < 0) return;
 
-    handleAfterChange(menuItemInput, newQty)
-  })
+    handleAfterChange(menuItemInput, newQty);
+  });
 
-  return actionsNode
+  return actionsNode;
 }
 
-function createButton(text, props = { type: 'button' }) {
-  const btnNode = document.createElement('button')
+function createButton(text, props = { type: "button" }) {
+  const btnNode = document.createElement("button");
 
-  btnNode.type = props.type
-  btnNode.innerText = text
-  
+  btnNode.type = props.type;
+  btnNode.innerText = text;
+
   for (const [k, v] of Object.entries(props.style ?? {})) {
-    btnNode.style[k] = v
+    btnNode.style[k] = v;
   }
 
-  return btnNode
+  return btnNode;
 }
 
 // Utilities
 function calculateMenuItemPrice(menuItem) {
-  let price = menuItem.basePrice
+  let price = menuItem.basePrice;
 
   for (const promotion of menuItem.promotions) {
     switch (promotion.type) {
-      case 'percent-off':
-        price -= price * (promotion.amount / 100)
-        break
-      case 'price-off':
-        price -= promotion.amount
-        break
+      case "percent-off":
+        price -= price * (promotion.amount / 100);
+        break;
+      case "price-off":
+        price -= promotion.amount;
+        break;
     }
   }
 
-  return price
+  return price;
 }
 
 function formatPrice(amount, currency) {
-  return new Intl.NumberFormat(['pt'], { currency, style: 'currency' }).format(
+  return new Intl.NumberFormat(["pt"], { currency, style: "currency" }).format(
     amount
-  )
+  );
 }
 
 function formatCountry(countryCode) {
-  return new Intl.DisplayNames(['pt'], { type: 'region' }).of(countryCode)
+  return new Intl.DisplayNames(["pt"], { type: "region" }).of(countryCode);
 }
 
 function getMenuItemInput(menuItemId, formNode) {
-  const formInputs = formNode.querySelectorAll('input')
+  const formInputs = formNode.querySelectorAll("input");
 
-  return Array.from(formInputs).find((input) => input.name === menuItemId)
+  return Array.from(formInputs).find((input) => input.name === menuItemId);
 }
 
 // Handlers
 async function submitOrder(restaurant, formNode) {
-  const formData = new FormData(formNode)
+  const formData = new FormData(formNode);
 
-  const selectedItems = []
+  const selectedItems = [];
   for (const [itemId, qty] of formData.entries()) {
-    const numQty = Number(qty)
+    const numQty = Number(qty);
 
-    if (!isFinite(Number(numQty)) || numQty <= 0) continue
+    if (!isFinite(Number(numQty)) || numQty <= 0) continue;
 
-    const menuItem = restaurant.menu.find((mi) => mi.id === itemId)
+    const menuItem = restaurant.menu.find((mi) => mi.id === itemId);
 
-    if (!menuItem) continue
+    if (!menuItem) continue;
 
-    selectedItems.push({ menuItemId: menuItem.id, quantity: numQty })
+    selectedItems.push({ menuItemId: menuItem.id, quantity: numQty });
   }
 
   const payload = JSON.stringify({
     restaurantId: restaurant.id,
     items: selectedItems,
-  })
+  });
 
   return await fetch(`${BASE_URL}/orders`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: payload,
-  })
+  });
 }
 
 // Setup
 function renderRestaurantList(restaurants) {
-  restaurantListNode.innerHTML = ''
+  restaurantListNode.innerHTML = "";
 
   for (const restaurant of restaurants) {
-    const restaurantNode = buildRestaurantNode(restaurant)
+    const restaurantNode = buildRestaurantNode(restaurant);
 
-    restaurantListNode.appendChild(restaurantNode)
+    restaurantListNode.appendChild(restaurantNode);
   }
 }
 
 function renderOrderTable(orders, restaurants) {
-  const tableBodyNode = orderDialogNode.querySelector('tbody')
+  const tableBodyNode = orderDialogNode.querySelector("tbody");
 
-  tableBodyNode.innerHTML = ''
+  tableBodyNode.innerHTML = "";
 
   for (const order of orders) {
-    const restaurant = restaurants.find((r) => r.id === order.restaurantId)
-    const rowNode = document.createElement('tr')
+    const restaurant = restaurants.find((r) => r.id === order.restaurantId);
+    const rowNode = document.createElement("tr");
 
     rowNode.innerHTML = `
       <td>${order.id}</td>
@@ -392,36 +401,35 @@ function renderOrderTable(orders, restaurants) {
       <td>${order.status}</td>
       <td>${order.items.length}</td>
       <td>${formatPrice(order.price, order.currency)}</td>
-    `
+    `;
 
-    tableBodyNode.appendChild(rowNode)
+    tableBodyNode.appendChild(rowNode);
   }
 }
 
-setupSearch()
+setupSearch();
 
 fetchRestaurants().then((restaurants) => {
-  renderRestaurantList(restaurants)
+  renderRestaurantList(restaurants);
 
-  restaurantSearchForm.addEventListener('submit', (e) => {
-    e.preventDefault()
+  restaurantSearchForm.addEventListener("submit", (e) => {
+    e.preventDefault();
 
-    handleRestaurantSearch(restaurants)
-  })
+    handleRestaurantSearch(restaurants);
+  });
 
-  orderDialogOpenBtn.addEventListener('click', async () => {
-    const orders = await fetchOrders()
+  orderDialogOpenBtn.addEventListener("click", async () => {
+    const orders = await fetchOrders();
 
-    renderOrderTable(orders, restaurants)
-    orderDialogNode.showModal()
-  })
-})
-
+    renderOrderTable(orders, restaurants);
+    orderDialogNode.showModal();
+  });
+});
 
 // ------ O TEU CÓDIGO AQUI --------------
 
 /**
- * 
+ *
  * @todo: Implement restaurant search function. It should support:
  * - Searching by name
  * - Searching by country
@@ -429,17 +437,48 @@ fetchRestaurants().then((restaurants) => {
  * - If a field is empty, we should not consider it for matching (e.g. empty fields match all)
  */
 function handleRestaurantSearch(restaurants) {
-  // Not implemented
+  const formData = new FormData(restaurantSearchForm);
+  // Filtrar por nome
+  const filterByName = (formData.get("name") || "").toLowerCase().trim();
+  const filterByCountry = formData.get("country") || "";
+  // Se no HTML o select tiver name="food"
+  const filterByFoodType = formData.getAll("foodType");
+  // Se houver checkbox para filtrar restaurantes com promoções, com name "promotion"
+  const filterByPromotion = formData.get("promotion");
 
-  console.log('handleRestaurantSearch - NOT IMPLEMENTED')
+  // Filtrar os restaurantes
+  const filteredRestaurants = restaurants.filter((restaurant) => {
+    // Filtrar por nome se pelo menos tiver parte do seu nome
+    if (filterByName && !restaurant.name.toLowerCase().includes(filterByName)) {
+      return false;
+    }
+    // Filtrar por país
+    if (filterByCountry && restaurant.address.countryCode !== filterByCountry) {
+      return false;
+    }
+    // Filtrar por tipos de comida com pelo menos 1 filtro
+    if (filterByFoodType.length > 0) {
+      const hasFoodType = filterByFoodType.some((food) =>
+        restaurant.food.includes(food)
+      );
+      if (!hasFoodType) return false;
+    }
+
+    if (filterByPromotion && !restaurantHasPromotion(restaurant)) {
+      return false;
+    }
+
+    return true;
+  });
+
+  renderRestaurantList(filteredRestaurants);
 }
-
 /**
- * 
+ *
  * @todo - Implement function to determine if a restaurant has an active promotion
  */
 function restaurantHasPromotion(restaurant) {
-  // Not implemented
-
-  console.log('restaurantHasPromotion - NOT IMPLEMENTED')
+  return restaurant.menu.some(
+    (menuItem) => menuItem.promotions && menuItem.promotions.length > 0
+  );
 }
